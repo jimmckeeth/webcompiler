@@ -19,8 +19,12 @@ jobs:
 
     - name: Force Submodule Update
       run: |
+        echo "Init submodules..."
+        git submodule update --init --recursive
+        echo "Sync submodules..."
         git submodule sync --recursive
-        git submodule update --init --force --recursive
+        echo "Update submodules..."
+        git submodule update --remote --recursive
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -40,6 +44,7 @@ jobs:
         
         if [ -z "$PAS2JS_PATH" ]; then
           echo "Error: pas2js binary not found in extracted files."
+          echo "Listing compiler_dist content:"
           find compiler_dist
           exit 1
         fi
@@ -50,12 +55,43 @@ jobs:
         # Make it available to subsequent steps
         echo "PAS2JS_BIN=$PAS2JS_PATH" >> $GITHUB_ENV
 
-    - name: Debug File Structure
+    - name: Comprehensive Debug Logging
       run: |
-        echo "Listing FPC submodule content..."
-        ls -F fpc/utils/pas2js/ || echo "fpc/utils/pas2js not found"
+        echo "========================================"
+        echo "DEBUG: Root Directory Listing"
+        ls -la
         
-        echo "Pas2JS binary environment var: $PAS2JS_BIN"
+        echo "========================================"
+        echo "DEBUG: Git Modules Config"
+        cat .gitmodules || echo ".gitmodules not found"
+        
+        echo "========================================"
+        echo "DEBUG: Git Submodule Status"
+        git submodule status
+        
+        echo "========================================"
+        echo "DEBUG: Checking FPC Directory"
+        if [ -d "fpc" ]; then
+            echo "fpc directory exists."
+            ls -F fpc/
+            echo "Checking fpc/utils/pas2js:"
+            ls -F fpc/utils/pas2js/ || echo "fpc/utils/pas2js not found or empty"
+        else
+            echo "fpc directory does MISSING."
+        fi
+        
+        echo "========================================"
+        echo "DEBUG: Checking Pas2JS Directory"
+        if [ -d "pas2js" ]; then
+            echo "pas2js directory exists."
+            ls -F pas2js/
+        else
+            echo "pas2js directory MISSING."
+        fi
+        
+        echo "========================================"
+        echo "DEBUG: Environment Variables"
+        echo "PAS2JS_BIN=$PAS2JS_BIN"
 
     - name: Build Project
       run: |

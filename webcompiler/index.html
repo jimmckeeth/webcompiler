@@ -197,7 +197,8 @@
             return new CodeMirror.Doc(content, "pascal");
         }
 
-        function openFile(filename) {
+        function openFile(rawFilename) {
+            var filename = rawFilename.toLowerCase();
             console.log("openFile called for:", filename);
             
             if (!window.webCompilerApp) {
@@ -263,7 +264,7 @@
             container.innerHTML = "";
             for (var fname in openDocs) {
                 var div = document.createElement("div");
-                div.className = "editor-tab" + (fname === currentFile ? " active" : "");
+                div.className = "editor-tab" + (fname.toLowerCase() === currentFile.toLowerCase() ? " active" : "");
                 div.innerHTML = `<span>${fname}</span><span class="close-tab" onclick="closeFile('${fname}', event)">×</span>`;
                 div.onclick = (function(f) { return function() { openFile(f); } })(fname);
                 container.appendChild(div);
@@ -273,7 +274,7 @@
         function highlightSidebar(filename) {
             var items = document.querySelectorAll("#file-list li");
             items.forEach(li => {
-                if (li.textContent === filename) li.classList.add("active");
+                if (li.textContent.toLowerCase() === filename.toLowerCase()) li.classList.add("active");
                 else li.classList.remove("active");
             });
         }
@@ -307,9 +308,9 @@
             // Sort: main.pas first, then others
             if (files && files.length) {
                 files.sort((a,b) => {
-                    if (a.startsWith("main")) return -1;
-                    if (b.startsWith("main")) return 1;
-                    return a.localeCompare(b);
+                    if (a.toLowerCase().startsWith("main")) return -1;
+                    if (b.toLowerCase().startsWith("main")) return 1;
+                    return a.toLowerCase().localeCompare(b.toLowerCase());
                 });
 
                 files.forEach(f => {
@@ -334,7 +335,7 @@
                             return r.text();
                         }).then(text => {
                             var name = url.split('/').pop().split('?')[0] || "downloaded.pas";
-                            // Try both case variants just in case
+                            name = name.toLowerCase(); // Normalize to lowercase
                             if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(name, text);
                             else window.webCompilerApp.AddSourceFile(name, text);
                         }).catch(e => console.error("Failed to load", url, e)));
@@ -355,7 +356,7 @@
         
         window.fileLoaded = function(filename) {
             console.log("fileLoaded notification for:", filename);
-            // Called when Pascal loads a file async
+            filename = filename.toLowerCase(); // Normalize to lowercase
             if (!currentFile) {
                  // If we are waiting for a file to open (like main.pas), open it now
                  if (filename.toLowerCase().startsWith("main")) {
@@ -376,9 +377,10 @@
 
         function runCode() {
             if (currentFile && openDocs[currentFile]) {
+                var filename = currentFile.toLowerCase(); // Normalize
                 var content = openDocs[currentFile].getValue();
-                if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(currentFile, content);
-                else window.webCompilerApp.AddSourceFile(currentFile, content);
+                if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(filename, content);
+                else window.webCompilerApp.AddSourceFile(filename, content);
                 
                 var mainFile = "main.pas"; 
                 if (openDocs[mainFile]) {
@@ -397,6 +399,7 @@
         function createNewFile() {
             var name = prompt("Enter filename (e.g. Unit2.pas):", "Unit2.pas");
             if (name) {
+                name = name.toLowerCase(); // Normalize
                 var content = "unit " + name.split('.')[0] + ";\n\ninterface\n\nimplementation\n\nend.";
                 if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(name, content);
                 else window.webCompilerApp.AddSourceFile(name, content);
@@ -410,6 +413,7 @@
             var url = document.getElementById('url-input').value;
             if (url) {
                 var name = url.split('/').pop().split('?')[0] || "downloaded.pas";
+                name = name.toLowerCase(); // Normalize
                 if (window.webCompilerApp.loadsourcefile) window.webCompilerApp.loadsourcefile(url, name);
                 else window.webCompilerApp.LoadSourceFile(url, name);
                 setTimeout(function() { window.appReady(); }, 1000);
@@ -418,7 +422,7 @@
 
         window.clearMarkers = function() { editor.clearGutter("breakpoints"); };
         window.addMarker = function(line, type, title) {
-            if (currentFile !== "main.pas") return; 
+            if (currentFile.toLowerCase() !== "main.pas") return; 
             var marker = document.createElement("div");
             marker.innerHTML = "●";
             marker.title = title;

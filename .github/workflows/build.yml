@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
@@ -17,24 +17,40 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Build WebCompiler
-      shell: powershell
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Download Pas2JS Compiler (Linux)
       run: |
-        # Ensure we can run the script
-        Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+        echo "Downloading compiler..."
+        wget -q https://getpas2js.freepascal.org/downloads/linux/pas2js-linux-x86_64-current.zip -O pas2js.zip
         
-        # Run the build script
-        .\recompile.ps1
+        echo "Extracting..."
+        unzip -q pas2js.zip -d compiler_dist
+        
+        # Locate the binary (it might be in a subdir like pas2js-linux-1.0.0/bin)
+        PAS2JS_PATH=$(find compiler_dist -name "pas2js" -type f | head -n 1)
+        echo "Found binary at: $PAS2JS_PATH"
+        
+        chmod +x "$PAS2JS_PATH"
+        echo "PAS2JS_BIN=$PAS2JS_PATH" >> $GITHUB_ENV
+
+    - name: Build Project
+      run: |
+        chmod +x build.sh
+        ./build.sh
 
     - name: Verify Output
-      shell: powershell
       run: |
-        if (Test-Path "webcompiler/webcompiler.js") {
-            Write-Host "Build artifact found."
-        } else {
-            Write-Error "Build artifact webcompiler/webcompiler.js missing!"
+        if [ -f "webcompiler/webcompiler.js" ]; then
+            echo "Build artifact found: webcompiler/webcompiler.js"
+            ls -lh webcompiler/webcompiler.js
+        else
+            echo "Error: Build artifact missing!"
             exit 1
-        }
+        fi
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4

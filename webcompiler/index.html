@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pas2JS Web Compiler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --navbar-bg: #343a40; 
+            --navbar-border: #444;
+            --panel-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --log-header-bg: #e9ecef;
+            --log-header-color: #495057;
+            --textarea-bg: #f8f9fa;
+            --textarea-color: #212529;
+            --result-bg: #e9ecef;
+            --result-color: #212529;
+            --scroll-track: #f1f1f1;
+            --scroll-thumb: #888;
+            --scroll-thumb-hover: #555;
+            --tab-active-bg: #ffffff;
+            --item-hover-bg: rgba(0,0,0,0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #212529;
+                --text-color: #f8f8f2;
+                --navbar-bg: #212529;
+                --navbar-border: #444;
+                --panel-bg: #282a36;
+                --border-color: #6272a4;
+                --log-header-bg: #44475a;
+                --log-header-color: #bd93f9;
+                --textarea-bg: #282a36;
+                --textarea-color: #f8f8f2;
+                --result-bg: #44475a;
+                --result-color: #f8f8f2;
+                --scroll-track: #282a36;
+                --scroll-thumb: #6272a4;
+                --scroll-thumb-hover: #50fa7b;
+                --tab-active-bg: #212529;
+                --item-hover-bg: rgba(255,255,255,0.1);
+            }
+        }
+
+        body, html { height: 100%; margin: 0; overflow: hidden; background-color: var(--bg-color); color: var(--text-color); }
+        .container-fluid { height: 100%; display: flex; flex-direction: column; padding: 0; }
+        .navbar { flex: 0 0 auto; border-bottom: 1px solid var(--navbar-border); background-color: var(--navbar-bg) !important; }
+        .main-content { flex: 1 1 auto; display: flex; overflow: hidden; }
+        
+        /* Layout Columns */
+        .sidebar { width: 250px; background: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; font-size: 14px; }
+        .editor-container { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); min-width: 0; }
+        .output-container { width: 40%; display: flex; flex-direction: column; background: var(--panel-bg); min-width: 300px; }
+        
+        /* Sidebar */
+        .file-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .file-list li { padding: 6px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-list li:hover { background: var(--item-hover-bg); }
+        .file-list li.active { background: #0d6efd; color: white; }
+        .sidebar-controls { padding: 10px; border-top: 1px solid var(--border-color); background: var(--panel-bg); }
+
+        /* Editor Tabs */
+        .editor-tabs { display: flex; background: var(--panel-bg); overflow-x: auto; border-bottom: 1px solid var(--border-color); height: 36px; }
+        .editor-tab { padding: 0 15px; cursor: pointer; border-right: 1px solid var(--border-color); white-space: nowrap; color: var(--text-color); display: flex; align-items: center; font-size: 13px; user-select: none; opacity: 0.7; }
+        .editor-tab:hover { opacity: 1; background: var(--item-hover-bg); }
+        .editor-tab.active { background: var(--tab-active-bg); font-weight: bold; border-bottom: 2px solid #0d6efd; opacity: 1; }
+        .editor-tab .close-tab { margin-left: 8px; font-size: 14px; line-height: 1; border-radius: 50%; width: 16px; height: 16px; text-align: center; display: inline-block; }
+        .editor-tab .close-tab:hover { background: #ff5555; color: white; }
+
+        .CodeMirror { flex: 1; height: 100%; font-size: 14px; }
+        
+        /* Output Panel */
+        .app-output-container { flex: 1; display: flex; flex-direction: column; background: #ffffff; position: relative; }
+        iframe { flex: 1; border: none; width: 100%; height: 100%; }
+        
+        .compiler-log-container { height: 30%; min-height: 150px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; background: var(--panel-bg); }
+        .log-header { background: var(--log-header-bg); padding: 4px 10px; font-size: 0.75rem; font-weight: bold; color: var(--log-header-color); text-transform: uppercase; letter-spacing: 1px; }
+        #memo-compiler-output { flex: 1; width: 100%; border: none; resize: none; font-family: 'Consolas', 'Monaco', monospace; padding: 10px; font-size: 12px; background: var(--textarea-bg); color: var(--textarea-color); outline: none; }
+        
+        #compile-result { font-size: 0.9em; background: var(--result-bg); color: var(--result-color); }
+        
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--scroll-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+
+        .breakpoints { width: 1.5em; }
+        .marker-error { color: #ff5555; font-weight: bold; cursor: help; }
+        .marker-warning { color: #ffb86c; font-weight: bold; cursor: help; }
+        .marker-hint { color: #8be9fd; font-weight: bold; cursor: help; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/pascal/pascal.min.js"></script>
+    <!-- CodeMirror Addons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/anyword-hint.min.js"></script>
+    
+    <script src="sources/rtl.js" type="text/javascript"></script>
+    <script src="webcompiler.js" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="navbar navbar-dark bg-dark px-3">
+            <span class="navbar-brand mb-0 h1">Pas2JS Web Compiler</span>
+            <div>
+                <span class="text-muted me-3 small d-none d-md-inline">F9: Run</span>
+                <button id="btn-run" class="btn btn-success fw-bold btn-sm">Run ▶</button>
+            </div>
+        </nav>
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="p-2 fw-bold border-bottom" style="color:var(--log-header-color)">Project Files</div>
+                <ul class="file-list" id="file-list">
+                    <!-- Files will be populated here -->
+                </ul>
+                <div class="sidebar-controls d-grid gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="createNewFile()">+ New File</button>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="url-input" class="form-control" placeholder="URL">
+                        <button class="btn btn-outline-secondary" onclick="loadFromUrl()">Add</button>
+                    </div>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div class="editor-tabs" id="editor-tabs"></div>
+                <!-- Hidden Textarea for Pas2JS bridge -->
+                <textarea id="memo-program-src" style="display:none">// Loading...</textarea> 
+                <div id="cm-wrapper" style="flex:1; overflow:hidden;"></div>
+            </div>
+            <div class="output-container">
+                <ul class="nav nav-tabs" id="outputTab" role="tablist" style="background: var(--panel-bg);">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active py-1" id="run-tab" data-bs-toggle="tab" data-bs-target="#run-pane" type="button" role="tab">App</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-1" id="compiler-tab" data-bs-toggle="tab" data-bs-target="#compiler-pane" type="button" role="tab">Log</button>
+                    </li>
+                </ul>
+                <div class="tab-content flex-grow-1 d-flex flex-column" id="outputTabContent" style="position:relative;">
+                    <div class="tab-pane fade show active flex-grow-1" id="run-pane" role="tabpanel" style="height:100%; width:100%;">
+                        <iframe id="runarea" src="run.html" style="display:block;"></iframe>
+                    </div>
+                    <div class="tab-pane fade flex-grow-1" id="compiler-pane" role="tabpanel" style="height:100%; width:100%;">
+                        <textarea id="memo-compiler-output" readonly></textarea>
+                    </div>
+                </div>
+                <div id="compile-result" class="p-2 border-top border-secondary"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var pascalKeywords = ["program", "unit", "library", "package", "interface", "implementation", "initialization", "finalization", "uses", "type", "const", "var", "threadvar", "resourcestring", "procedure", "function", "begin", "end", "if", "then", "else", "case", "of", "for", "to", "downto", "do", "while", "repeat", "until", "with", "try", "finally", "except", "on", "raise", "class", "record", "object", "set", "file", "array", "constructor", "destructor", "inherited", "property", "read", "write", "stored", "default", "nodefault", "implements", "reintroduce", "overload", "override", "virtual", "dynamic", "abstract", "static", "sealed", "final", "strict", "private", "protected", "public", "published", "automated"];
+
+        function pascalHint(editor, options) {
+            var cur = editor.getCursor();
+            var token = editor.getTokenAt(cur);
+            var list = pascalKeywords.filter(k => k.startsWith(token.string.toLowerCase()));
+            return { list: list, from: CodeMirror.Pos(cur.line, token.start), to: CodeMirror.Pos(cur.line, token.end) };
+        }
+        CodeMirror.registerHelper("hint", "pascal", pascalHint);
+
+        var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var editor = CodeMirror(document.getElementById("cm-wrapper"), {
+            mode: "pascal",
+            theme: isDark ? "dracula" : "eclipse",
+            lineNumbers: true,
+            indentUnit: 2,
+            tabSize: 2,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+            gutters: ["CodeMirror-linenumbers", "breakpoints"],
+            extraKeys: {"Ctrl-Space": "autocomplete"}
+        });
+
+        // State
+        var openDocs = {}; // filename -> CodeMirror.Doc
+        var currentFile = "";
+
+        function createDoc(content) {
+            return new CodeMirror.Doc(content, "pascal");
+        }
+
+        function openFile(filename) {
+            console.log("openFile called for:", filename);
+            
+            if (!window.webCompilerApp) {
+                console.error("webCompilerApp is not defined yet.");
+                return;
+            }
+
+            if (currentFile && openDocs[currentFile]) {
+                // Ensure current doc is saved to memory before switch?
+                // Not strictly needed as we save on Run/Save.
+            }
+
+            if (!openDocs[filename]) {
+                var content = "";
+                
+                try {
+                    if (typeof window.webCompilerApp.getfilecontent === 'function') {
+                        content = window.webCompilerApp.getfilecontent(filename);
+                    } else if (typeof window.webCompilerApp.GetFileContent === 'function') {
+                        content = window.webCompilerApp.GetFileContent(filename);
+                        console.log("Using CamelCase GetFileContent");
+                    } else {
+                        console.error("No GetFileContent method found on webCompilerApp. Available properties:", Object.keys(window.webCompilerApp));
+                    }
+                } catch (e) {
+                    console.error("Error calling GetFileContent:", e);
+                }
+                
+                if (!content) {
+                    console.log("Content empty for", filename);
+                    // Fallback for main.pas if empty or not yet loaded
+                    if (filename === "main.pas") content = "program main;\n\nuses browserconsole;\n\nbegin\n  Writeln('Hello!');\nend.\n";
+                    else content = "";
+                }
+                openDocs[filename] = createDoc(content);
+            }
+
+            editor.swapDoc(openDocs[filename]);
+            currentFile = filename;
+            renderTabs();
+            highlightSidebar(filename);
+        }
+
+        function closeFile(filename, e) {
+            if (e) e.stopPropagation();
+            delete openDocs[filename];
+            if (currentFile === filename) {
+                var keys = Object.keys(openDocs);
+                if (keys.length > 0) openFile(keys[keys.length - 1]);
+                else {
+                    currentFile = "";
+                    editor.setValue(""); 
+                    renderTabs();
+                    highlightSidebar("");
+                }
+            } else {
+                renderTabs();
+            }
+        }
+
+        function renderTabs() {
+            var container = document.getElementById("editor-tabs");
+            container.innerHTML = "";
+            for (var fname in openDocs) {
+                var div = document.createElement("div");
+                div.className = "editor-tab" + (fname === currentFile ? " active" : "");
+                div.innerHTML = `<span>${fname}</span><span class="close-tab" onclick="closeFile('${fname}', event)">×</span>`;
+                div.onclick = (function(f) { return function() { openFile(f); } })(fname);
+                container.appendChild(div);
+            }
+        }
+
+        function highlightSidebar(filename) {
+            var items = document.querySelectorAll("#file-list li");
+            items.forEach(li => {
+                if (li.textContent === filename) li.classList.add("active");
+                else li.classList.remove("active");
+            });
+        }
+
+        // Pascal Integration
+        window.appReady = function() {
+            console.log("appReady called");
+            if (!window.webCompilerApp) {
+                console.error("appReady called but webCompilerApp is undefined");
+                return;
+            }
+            
+            var files = [];
+            try {
+                if (typeof window.webCompilerApp.getfilelist === 'function') {
+                    files = window.webCompilerApp.getfilelist();
+                } else if (typeof window.webCompilerApp.GetFileList === 'function') {
+                    files = window.webCompilerApp.GetFileList();
+                } else {
+                    console.error("No GetFileList method found. Methods:", Object.keys(window.webCompilerApp));
+                }
+            } catch(e) {
+                console.error("Error calling GetFileList:", e);
+            }
+            
+            console.log("Files loaded:", files);
+
+            var list = document.getElementById("file-list");
+            list.innerHTML = "";
+            
+            // Sort: main.pas first, then others
+            if (files && files.length) {
+                files.sort((a,b) => {
+                    if (a.startsWith("main")) return -1;
+                    if (b.startsWith("main")) return 1;
+                    return a.localeCompare(b);
+                });
+
+                files.forEach(f => {
+                    var li = document.createElement("li");
+                    li.textContent = f;
+                    li.onclick = function() { openFile(f); };
+                    list.appendChild(li);
+                });
+            }
+
+            // Handle URL Params
+            if (!window.paramsLoaded) {
+                var params = new URLSearchParams(window.location.search);
+                var loads = params.getAll("file");
+                
+                if (loads.length > 0) {
+                    window.paramsLoaded = true;
+                    var p = Promise.resolve();
+                    loads.forEach(url => {
+                        p = p.then(() => fetch(url).then(r => {
+                            if (!r.ok) throw new Error(r.statusText);
+                            return r.text();
+                        }).then(text => {
+                            var name = url.split('/').pop().split('?')[0] || "downloaded.pas";
+                            // Try both case variants just in case
+                            if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(name, text);
+                            else window.webCompilerApp.AddSourceFile(name, text);
+                        }).catch(e => console.error("Failed to load", url, e)));
+                    });
+                    p.then(() => {
+                        // refresh list and check for main
+                        window.appReady(); 
+                    });
+                    return; 
+                }
+            }
+
+            if (!currentFile) {
+                 var main = files ? files.find(f => f.toLowerCase().startsWith("main")) : null;
+                 if (main) openFile(main);
+            }
+        };
+        
+        window.fileLoaded = function(filename) {
+            console.log("fileLoaded notification for:", filename);
+            // Called when Pascal loads a file async
+            if (!currentFile) {
+                 // If we are waiting for a file to open (like main.pas), open it now
+                 if (filename.toLowerCase().startsWith("main")) {
+                     openFile(filename);
+                 }
+            } else if (currentFile === filename) {
+                 // Refresh content if currently open and empty?
+                 var doc = openDocs[filename];
+                 if (doc && doc.getValue() === "") {
+                     var content = "";
+                     if (window.webCompilerApp.getfilecontent) content = window.webCompilerApp.getfilecontent(filename);
+                     else content = window.webCompilerApp.GetFileContent(filename);
+                     
+                     if (content) doc.setValue(content);
+                 }
+            }
+        };
+
+        function runCode() {
+            if (currentFile && openDocs[currentFile]) {
+                var content = openDocs[currentFile].getValue();
+                if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(currentFile, content);
+                else window.webCompilerApp.AddSourceFile(currentFile, content);
+                
+                var mainFile = "main.pas"; 
+                if (openDocs[mainFile]) {
+                    document.getElementById("memo-program-src").value = openDocs[mainFile].getValue();
+                } else {
+                    var mainContent = "";
+                    if (window.webCompilerApp.getfilecontent) mainContent = window.webCompilerApp.getfilecontent(mainFile);
+                    else mainContent = window.webCompilerApp.GetFileContent(mainFile);
+                    
+                    document.getElementById("memo-program-src").value = mainContent || "";
+                }
+            }
+            document.getElementById('btn-run').click();
+        }
+
+        function createNewFile() {
+            var name = prompt("Enter filename (e.g. Unit2.pas):", "Unit2.pas");
+            if (name) {
+                var content = "unit " + name.split('.')[0] + ";\n\ninterface\n\nimplementation\n\nend.";
+                if (window.webCompilerApp.addsourcefile) window.webCompilerApp.addsourcefile(name, content);
+                else window.webCompilerApp.AddSourceFile(name, content);
+                
+                window.appReady(); 
+                openFile(name);
+            }
+        }
+
+        function loadFromUrl() {
+            var url = document.getElementById('url-input').value;
+            if (url) {
+                var name = url.split('/').pop().split('?')[0] || "downloaded.pas";
+                if (window.webCompilerApp.loadsourcefile) window.webCompilerApp.loadsourcefile(url, name);
+                else window.webCompilerApp.LoadSourceFile(url, name);
+                setTimeout(function() { window.appReady(); }, 1000);
+            }
+        }
+
+        window.clearMarkers = function() { editor.clearGutter("breakpoints"); };
+        window.addMarker = function(line, type, title) {
+            if (currentFile !== "main.pas") return; 
+            var marker = document.createElement("div");
+            marker.innerHTML = "●";
+            marker.title = title;
+            marker.className = "marker-" + type;
+            editor.setGutterMarker(line - 1, "breakpoints", marker);
+        };
+
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'F9') { e.preventDefault(); runCode(); }
+        });
+        
+        document.getElementById('btn-run').addEventListener('mousedown', runCode); 
+
+        window.showRunTab = function() { 
+            var tab = new bootstrap.Tab(document.querySelector('#run-tab')); tab.show(); 
+        };
+        window.showCompilerTab = function() { 
+            var tab = new bootstrap.Tab(document.querySelector('#compiler-tab')); tab.show(); 
+        };
+
+        rtl.run();
+    </script>
+</body>
+</html>

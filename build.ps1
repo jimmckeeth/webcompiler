@@ -1,9 +1,9 @@
 $ErrorActionPreference = "Stop"
 
-$demoDir = "webcompiler"
-$sourcesDir = "$demoDir/sources"
-$filesJson = "$demoDir/files.json"
-$lprFile = "$demoDir/webcompiler.lpr"
+$projectDir = "."
+$sourcesDir = "$projectDir/sources"
+$filesJson = "$projectDir/files.json"
+$lprFile = "$projectDir/webcompiler.lpr"
 $fpcPath = "fpc"
 $pas2jsRepo = "pas2js"
 
@@ -102,6 +102,7 @@ $params = @(
     $lprFile
 )
 
+Write-Host "$foundBin $params" -ForegroundColor DarkGray
 & $foundBin $params
 
 if ($LASTEXITCODE -eq 0) {

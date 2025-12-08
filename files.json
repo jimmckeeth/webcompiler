@@ -19,7 +19,7 @@
   "p2jsres.pas",
   "pas2js_rtl.pas",
   "rstranslate.pp",
-  "Rtl.BrowserLoadHelper.pas",
+  "rtl.browserloadhelper.pas",
   "Rtl.HTMLActions.pas",
   "Rtl.HTMLEventNames.pas",
   "Rtl.HTMLTranslate.pas",

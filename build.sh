@@ -3,10 +3,10 @@
 # Exit on error
 set -e
 
-DEMO_DIR="webcompiler"
-SOURCES_DIR="$DEMO_DIR/sources"
-FILES_JSON="$DEMO_DIR/files.json"
-LPR_FILE="$DEMO_DIR/webcompiler.lpr"
+PROJECT_DIR="."
+SOURCES_DIR="$PROJECT_DIR/sources"
+FILES_JSON="$PROJECT_DIR/files.json"
+LPR_FILE="$PROJECT_DIR/webcompiler.lpr"
 FPC_PATH="fpc"
 PAS2JS_REPO="pas2js"
 

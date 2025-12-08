@@ -24,17 +24,10 @@ jobs:
         echo "Checking .gitmodules..."
         cat .gitmodules
 
-    - name: Fix and Update Submodules
+    - name: Submodules
       run: |
         # Manually register the submodules based on .gitmodules
-        git submodule init
-        
-        # If fpc is missing from .git/config despite init, force add it
-        if ! git config --get submodule.fpc.url; then
-            echo "FPC submodule missing from config. Force adding..."
-            git submodule add --force https://gitlab.com/freepascal.org/fpc/source fpc
-        fi
-        
+        git submodule init        
         git submodule sync
         git submodule update --init --recursive --force
 
@@ -64,58 +57,18 @@ jobs:
         echo "Found binary at: $PAS2JS_PATH"
         chmod +x "$PAS2JS_PATH"
         
-        # Make it available to subsequent steps
         echo "PAS2JS_BIN=$PAS2JS_PATH" >> $GITHUB_ENV
-
-    - name: Comprehensive Debug Logging
-      run: |
-        echo "========================================"
-        echo "DEBUG: Root Directory Listing"
-        ls -la
-        
-        echo "========================================"
-        echo "DEBUG: Git Modules Config"
-        cat .gitmodules || echo ".gitmodules not found"
-        
-        echo "========================================"
-        echo "DEBUG: Git Submodule Status"
-        git submodule status
-        
-        echo "========================================"
-        echo "DEBUG: Checking FPC Directory"
-        if [ -d "fpc" ]; then
-            echo "fpc directory exists."
-            ls -F fpc/
-            echo "Checking fpc/utils/pas2js:"
-            ls -F fpc/utils/pas2js/ || echo "fpc/utils/pas2js not found or empty"
-        else
-            echo "fpc directory does MISSING."
-        fi
-        
-        echo "========================================"
-        echo "DEBUG: Checking Pas2JS Directory"
-        if [ -d "pas2js" ]; then
-            echo "pas2js directory exists."
-            ls -F pas2js/
-        else
-            echo "pas2js directory MISSING."
-        fi
-        
-        echo "========================================"
-        echo "DEBUG: Environment Variables"
-        echo "PAS2JS_BIN=$PAS2JS_BIN"
 
     - name: Build Project
       run: |
         chmod +x build.sh
-        # Pass the env var explicitly if needed, though $PAS2JS_BIN should be picked up
         ./build.sh
 
     - name: Verify Output
       run: |
-        if [ -f "webcompiler/webcompiler.js" ]; then
-            echo "Build artifact found: webcompiler/webcompiler.js"
-            ls -lh webcompiler/webcompiler.js
+        if [ -f "webcompiler.js" ]; then
+            echo "Build artifact found: webcompiler.js"
+            ls -lh webcompiler.js
         else
             echo "Error: Build artifact missing!"
             exit 1
@@ -126,9 +79,9 @@ jobs:
       with:
         name: webcompiler-build
         path: |
-          webcompiler/webcompiler.js
-          webcompiler/index.html
-          webcompiler/run.html
-          webcompiler/files.json
-          webcompiler/server.js
-          webcompiler/sources/
+          webcompiler.js
+          index.html
+          run.html
+          files.json
+          server.js
+          sources/

@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$projectDir = "."
+$projectDir = "src"
 $sourcesDir = "$projectDir/sources"
 $filesJson = "$projectDir/files.json"
 $lprFile = "$projectDir/webcompiler.lpr"

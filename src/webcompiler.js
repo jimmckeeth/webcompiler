@@ -8373,19 +8373,19 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
   var $lt6 = null;
   var $lm = pas.System;
   var $lt7 = $lm.TObject;
-  var $lp = $lm.Writeln;
   var $lm1 = pas.contnrs;
   var $lt8 = $lm1.TFPObjectHashTable;
   var $lm2 = pas.SysUtils;
-  var $lp1 = $lm2.FreeAndNil;
+  var $lp = $lm2.FreeAndNil;
   var $lm3 = pas.PScanner;
   var $lt9 = $lm3.EFileNotFoundError;
   var $lm4 = pas.Pas2JSFS;
   var $lt10 = $lm4.TPas2jsFile;
   var $lt11 = $lm4.TSourceLineReader;
   var $lt12 = $lm4.TPas2JSFS;
-  var $lp2 = $lm2.LowerCase;
-  var $lp3 = $lm2.ExtractFileName;
+  var $lp1 = $lm2.LowerCase;
+  var $lp2 = $lm2.ExtractFileName;
+  var $lp3 = $lm.Writeln;
   var $lp4 = $lm2.IncludeTrailingPathDelimiter;
   var $lt13 = $lm4.TPas2jsFSResolver;
   rtl.createClass(this,"TWebFileContent",$lt7,function () {
@@ -8420,12 +8420,10 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     this.FindFile = function (aFileName) {
       var Result = null;
       var N = null;
-      $lp(this.$classname,": Looking for file : ",aFileName);
       N = this.FFiles.Find(aFileName);
       if (N === null) {
         Result = null}
        else Result = N.FData;
-      $lp(this.$classname,": Looking for file : ",aFileName,": ",Result != null);
       return Result;
     };
     this.Create$1 = function () {
@@ -8433,7 +8431,7 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
       return this;
     };
     this.Destroy = function () {
-      $lp1({p: this, get: function () {
+      $lp({p: this, get: function () {
           return this.p.FFiles;
         }, set: function (v) {
           this.p.FFiles = v;
@@ -8443,13 +8441,11 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     this.HasFile = function (aFileName) {
       var Result = false;
       Result = this.FindFile(aFileName) !== null;
-      $lp(this.$classname,": HasFile(",aFileName,") : ",Result);
       return Result;
     };
     this.GetFileContent = function (aFileName) {
       var Result = "";
       var W = null;
-      $lp(this.$classname,": GetFileContent(",aFileName,")");
       W = this.FindFile(aFileName);
       if (W != null) {
         Result = W.FContents}
@@ -8459,7 +8455,6 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     this.SetFileContent = function (aFileName, aContent) {
       var Result = false;
       var W = null;
-      $lp(this.$classname,": SetFileContent(",aFileName,")");
       W = this.FindFile(aFileName);
       Result = W != null;
       if (Result) {
@@ -8472,7 +8467,6 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     $lt2 = this;
     this.CreateLineReader = function (RaiseOnError) {
       var Result = null;
-      $lp(this.$classname,": Creating line reader for ",this.FFilename);
       if (this.Load(RaiseOnError,false)) {
         Result = $lt3.$create("Create$2",[this.FFilename,this.FSource]);
         Result.FFS = this.FFS;
@@ -8482,15 +8476,12 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     this.Load = function (RaiseOnError, Binary) {
       var Result = false;
       Result = false;
-      $lp(this.$classname,": Loading for ",this.FFilename);
       var $with = rtl.as(this.FFS,$lt5).FCache;
       if ($with.HasFile(this.FFilename)) {
         this.SetSource($with.GetFileContent(this.FFilename));
         Result = true;
       };
-      if (!Result) if (RaiseOnError) {
-        throw $lt9.$create("Create$1",["File not loaded " + this.FFilename])}
-       else $lp("File not loaded " + this.FFilename);
+      if (!Result) if (RaiseOnError) throw $lt9.$create("Create$1",["File not loaded " + this.FFilename]);
       return Result;
     };
   });
@@ -8569,15 +8560,13 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     };
     this.NormalizeFileName = function (aFileName) {
       var Result = "";
-      Result = $lp2($lp3(aFileName));
+      Result = $lp1($lp2(aFileName));
       return Result;
     };
     this.FindSourceFileName = function (aFilename) {
       var Result = "";
-      $lp(this.$classname,": FindSourceFileName(",aFilename,")");
       Result = this.$class.NormalizeFileName(aFilename);
       if (!this.FCache.HasFile(Result)) Result = "";
-      $lp(this.$classname,": FindSourceFileName(",aFilename,") : ",Result);
       return Result;
     };
     this.Create$1 = function () {
@@ -8592,40 +8581,30 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
     };
     this.FileExists = function (aFileName) {
       var Result = false;
-      $lp(this.$classname,": FileExists(",aFileName,")");
       Result = this.FCache.HasFile(this.$class.NormalizeFileName(aFileName));
-      $lp(this.$classname,": FileExists(",aFileName,") : ",Result);
       return Result;
     };
     this.FindCustomJSFileName = function (aFilename) {
       var Result = "";
-      $lp(this.$classname,": FindCustomJSFileName(",aFilename,")");
       Result = this.$class.NormalizeFileName(aFilename);
       if (!this.FCache.HasFile(Result)) Result = "";
-      $lp(this.$classname,": FindCustomJSFileName(",aFilename,"): ",Result);
       return Result;
     };
     this.FindIncludeFileName = function (aFilename, SrcDir, ModuleDir, Mode) {
       var Result = "";
-      $lp(this.$classname,": FindIncludeFileName(",aFilename,",",ModuleDir,")");
       Result = this.$class.NormalizeFileName(aFilename);
       if (!this.FCache.HasFile(Result)) Result = "";
-      $lp(this.$classname,": FindIncludeFileName(",aFilename,") : ",Result);
       return Result;
     };
     this.FindUnitFileName = function (aUnitname, InFilename, ModuleDir, IsForeign) {
       var Result = "";
-      $lp(this.$classname,": FindUnitFileName(",aUnitname,",",InFilename,",",ModuleDir,")");
       Result = this.$class.NormalizeFileName(aUnitname + ".pas");
       IsForeign.set(false);
-      $lp(this.$classname,": FindUnitFileName(",aUnitname,") : ",Result);
       return Result;
     };
     this.FindUnitJSFileName = function (aUnitFilename) {
       var Result = "";
-      $lp(this.$classname,": FindUnitJSFileName(",aUnitFilename,")");
       Result = this.$class.NormalizeFileName(aUnitFilename);
-      $lp(this.$classname,": FindUnitJSFileName(",aUnitFilename,") : ",Result);
       return Result;
     };
     this.LoadFile = function (Filename, Binary) {
@@ -8642,7 +8621,7 @@ rtl.module("webfilecache",["System","Classes","SysUtils","JS","Web","fpjson","Pa
       for (var $l = 0, $end = ms.length - 1; $l <= $end; $l++) {
         i = $l;
         v = ms[i];
-        $lp("Char ",i,"(",v,") : ",String.fromCharCode(v));
+        $lp3("Char ",i,"(",v,") : ",String.fromCharCode(v));
         aContent = aContent + String.fromCharCode(ms[i]);
       };
       this.SetFileContent(Filename,aContent);

@@ -3,7 +3,7 @@
 # Exit on error
 set -e
 
-PROJECT_DIR="."
+PROJECT_DIR="src"
 SOURCES_DIR="$PROJECT_DIR/sources"
 FILES_JSON="$PROJECT_DIR/files.json"
 LPR_FILE="$PROJECT_DIR/webcompiler.lpr"

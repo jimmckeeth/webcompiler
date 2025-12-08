@@ -71,14 +71,8 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: |
-          webcompiler.js
-          index.html
-          run.html
-          files.json
-          server.js
-          sources/
-  # NEW: Deploy job
+        path: src
+
   deploy:
     environment:
       name: github-pages

@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="12"/>
     <BuildModes Active="Default"/>
-    <Units Count="1">
+    <Units Count="2">
       <Unit0>
         <Filename Value="webcompiler.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -13,8 +13,16 @@
         <UsageCount Value="24"/>
         <Loaded Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="fpc\packages\fcl-passrc\src\pasresolver.pp"/>
+        <UnitName Value="PasResolver"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2267"/>
+        <CursorPos Y="2526"/>
+        <UsageCount Value="10"/>
+      </Unit1>
     </Units>
-    <JumpHistory Count="3" HistoryIndex="2">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="webcompiler.lpr"/>
         <Caret Line="75" Column="55" TopLine="51"/>
@@ -26,6 +34,14 @@
       <Position3>
         <Filename Value="webcompiler.lpr"/>
       </Position3>
+      <Position4>
+        <Filename Value="webcompiler.lpr"/>
+        <Caret Line="6" Column="44"/>
+      </Position4>
+      <Position5>
+        <Filename Value="webcompiler.lpr"/>
+        <Caret Line="6" Column="44" TopLine="58"/>
+      </Position5>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

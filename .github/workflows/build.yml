@@ -61,7 +61,7 @@ jobs:
 
     - name: Verify Output
       run: |
-        if [ -f "webcompiler.js" ]; then
+        if [ -f "src/webcompiler.js" ]; then
             echo "Build artifact found: webcompiler.js"
         else
             echo "Error: Build artifact missing!"

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CONFIG>
-  <Compiler Value="C:\tools\fpcupdeluxe\ccr\pas2js-rtl\bin\i386-win32\pas2js.exe" Date="1535605763"/>
-  <Params Value="-Tbrowser -Pecmascript5 -MObjFPC -Sc -O1 -l -vewnhibq -FiC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\utils\pas2js -FiC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\packages\pastojs\src -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\ -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\utils\pas2js -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\packages\pastojs\src -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\packages\fcl-passrc\src -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\packages\fcl-json\src -FuC:\Users\jim\Documents\Git\pas2js-webcompiler\fpc\packages\fcl-js\src -oC:\Users\jim\Documents\Git\pas2js-webcompiler\webcompiler.js -Jeutf-8 -Jirtl.js -Jc -Jminclude webcompiler.lpr"/>
-  <Complete Value="False"/>
-</CONFIG>

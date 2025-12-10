@@ -9,3 +9,31 @@ This is fully built and ready to go. Just deploy the following files onto your w
 * **[souces](https://github.com/delphiorg/webcompiler/blob/main/src/webcompiler.js)** - the whole folder, with all the files in it.
 
 There is functionality for loding files into multiple tabs and loading files from from an external URL (like a raw GitHub gist for example.) But the compiler doesn't load them in yet.
+
+This is the rough directory structure for your repository
+
+```
+📁webcompiler/
+├─📁fpc/
+├─📁pas2js/
+├─📁bin/
+│  ├─📄libpas2js.dll
+│  ├─📄pas2js.exe
+│  ├─📄pas2js.cfg
+│  └─📄etc.
+├─📁src/
+├  ├─📁sources/
+│  │  ├─📄arrayutils.pas
+│  │  ├─📄browserconsole.pas
+│  │  ├─📄rtl.js
+│  │  ├─📄system.pas
+│  │  └─📄etc.
+│  ├─📄readme.md ◄━	 YOU ARE HERE
+│  ├─📄index.html
+│  ├─📄run.html
+│  ├─📄files.json
+│  └─📄webcompiler.js
+├─📄build.ps1
+├─📄build.sh
+└─📄README.md
+```

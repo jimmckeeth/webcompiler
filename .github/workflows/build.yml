@@ -41,10 +41,10 @@ jobs:
         git submodule sync
         git submodule update --init --recursive --force
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+    # - name: Setup Python
+    #   uses: actions/setup-python@v4
+    #   with:
+    #     python-version: '3.x'
 
     - name: Download Pas2JS Compiler (Linux)
       run: |

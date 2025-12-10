@@ -21,7 +21,7 @@ This is a modern, fully functional web-based IDE and compiler for Pas2JS. It all
 You can automatically load source files from external URLs (like GitHub Gists) by appending `?file=<url>` to the web compiler URL. You can load multiple files this way.
 
 **Example:**
-`http://localhost:8000/webcompiler.html?file=https://gist.githubusercontent.com/user/id/raw/unit1.pas&file=https://gist.githubusercontent.com/user/id/raw/main.pas`
+`http://localhost:8000/index.html?file=https://gist.githubusercontent.com/user/id/raw/unit1.pas&file=https://gist.githubusercontent.com/user/id/raw/main.pas`
 
 If a loaded file is named "main" (case-insensitive, e.g., `main.pas`, `main.pp`), it will be automatically opened as the active tab.
 
@@ -34,13 +34,13 @@ If a loaded file is named "main" (case-insensitive, e.g., `main.pas`, `main.pp`)
 ## Project Structure
 
 *   `webcompiler.lpr`: The main Pascal project file containing the application logic.
-*   `webcompiler.html`: The main entry point for the web application.
+*   `index.html`: The main entry point for the web application.
 *   `files.json`: A JSON array listing the filenames of standard units to be loaded into the virtual file system at startup.
 *   `sources/`: Contains the Pascal units (RTL and Compiler) and a default `main.pas` program.
 
 ## How It Works
 
-1.  **Initialization**: When `webcompiler.html` loads, it initializes the CodeMirror editor and the Pascal application (`webcompiler.js`).
+1.  **Initialization**: When `index.html` loads, it initializes the CodeMirror editor and the Pascal application (`webcompiler.js`).
 2.  **Loading Units**: The Pascal application (`TWebCompiler`) fetches `files.json` to get the initial list of available units. It then loads the source code of these standard units (e.g., `system.pas`, `sysutils.pas`, `main.pas`) from the `sources/` directory into a virtual file system (`WebFS`). Additional files can be added to this virtual file system at runtime via URL parameters or interactive UI elements.
 3.  **Compilation**: When you click "Run" (or press F9):
     *   The content of the active editor tab is saved to the virtual file system.
@@ -49,10 +49,6 @@ If a loaded file is named "main" (case-insensitive, e.g., `main.pas`, `main.pp`)
 4.  **Execution**: If compilation succeeds:
     *   The generated JavaScript is injected into an isolated IFrame (`runarea`).
     *   The application runs within the IFrame, and its console output is displayed in the "App" tab.
-
-## Building and Updating
-
-To update the web compiler (e.g., after modifying `webcompiler.lpr`), you need to recompile it using the native `pas2js` compiler.
 
 ### Updating Unit List
 
@@ -65,6 +61,22 @@ Get-ChildItem -Name sources | ConvertTo-Json > demo/webcompiler/files.json
 
 ### Build Command
 
+This is all automated with `[build.ps1](https://github.com/delphiorg/webcompiler/blob/main/build.ps1)` or `[build.sh](https://github.com/delphiorg/webcompiler/blob/main/build.sh)`, and there is a workflow setup to build and deploy this to GitHub Pages too (using `build.sh`).
+
+#### Manual Process
+
+Before you can rebuild, you need to download FPC and Pas2js into their respective folders. They are setup as git submodules, which simplified this. There are 3 ways to do this:
+
+* To clone this repo and and the submodules at the same time use `git clone --recursive` 
+* If you've already cloned this repo then to download just the submodules run `git submodule update --init`
+* If you want to update the submodules to the latest version `git submodule update --remote`
+
+You need to download the Pas2js compiler for your platform into the bin folder.
+
+You also need to 
+
+Once you have the prerequisites
+
 Run from the project root:
 ```powershell
 bin/pas2js.exe -Tbrowser -Jc -O2 "-Fucompiler/utils/pas2js" "-Fucompiler/packages/compat" "-Fucompiler/packages/fcl-json/src" "-Fucompiler/packages/fcl-passrc/src" "-Fucompiler/packages/pastojs/src" "-Fucompiler/packages/fcl-js/src" "-Fupackages/*" demo/webcompiler/webcompiler.lpr
@@ -73,4 +85,34 @@ bin/pas2js.exe -Tbrowser -Jc -O2 "-Fucompiler/utils/pas2js" "-Fucompiler/package
 ### Running
 
 1.  Start the local web server: `node demo/webcompiler/server.js`
-2.  Open `http://localhost:8000/webcompiler.html`.
+2.  Open `http://localhost:8000/index.html`.
+
+## Directory Structure
+
+* fpc
+
+```
+📁webcompiler/ ◄━	 YOU ARE HERE
+├─📁fpc/    (submodule)
+├─📁pas2js/ (submodule)
+├─📁bin/    (download)
+│  ├─📄libpas2js.dll
+│  ├─📄pas2js.exe
+│  ├─📄pas2js.cfg
+│  └─📄etc.
+├─📁src/    (deploy)
+├  ├─📁sources/
+│  │  ├─📄arrayutils.pas
+│  │  ├─📄browserconsole.pas
+│  │  ├─📄rtl.js
+│  │  ├─📄system.pas
+│  │  └─📄etc.
+│  ├─📄readme.md 
+│  ├─📄index.html
+│  ├─📄run.html
+│  ├─📄files.json
+│  └─📄webcompiler.js
+├─📄build.ps1
+├─📄build.sh
+└─📄README.md
+```

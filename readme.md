@@ -21,13 +21,16 @@ This is a modern, fully functional web-based IDE and compiler for Pas2JS. It all
 You can automatically load source files from external URLs (like GitHub Gists) by appending `?file=<url>` to the web compiler URL. You can load multiple files this way.
 
 **Example:**
-`http://localhost:8000/index.html?file=https://gist.githubusercontent.com/user/id/raw/unit1.pas&file=https://gist.githubusercontent.com/user/id/raw/main.pas`
+```
+http://localhost:8000/index.html?file=https://gist.githubusercontent.com/user/id/raw/unit1.pas&file=https://gist.githubusercontent.com/user/id/raw/main.pas
+```
 
 If a loaded file is named "main" (case-insensitive, e.g., `main.pas`, `main.pp`), it will be automatically opened as the active tab.
 
 ## Technologies Used
 
 *   **[Pas2JS](https://wiki.freepascal.org/pas2js)**: The core Pascal to JavaScript compiler.
+  *   **[FPC](https://freepascal.org/)**: Pas2JS is part of FreePascal.
 *   **[CodeMirror 5](https://codemirror.net/5/)**: The versatile text editor component.
 *   **[Bootstrap 5](https://getbootstrap.com/)**: For responsive layout and UI components.
 
@@ -61,13 +64,17 @@ Get-ChildItem -Name sources | ConvertTo-Json > demo/webcompiler/files.json
 
 ### Build Command
 
-This is all automated with `[build.ps1](https://github.com/delphiorg/webcompiler/blob/main/build.ps1)` or `[build.sh](https://github.com/delphiorg/webcompiler/blob/main/build.sh)`, and there is a workflow setup to build and deploy this to GitHub Pages too (using `build.sh`).
+This is all automated with [`build.ps1`](https://github.com/delphiorg/webcompiler/blob/main/build.ps1) or [`build.sh`](https://github.com/delphiorg/webcompiler/blob/main/build.sh), and there is a [workflow](/.github/workflows/build.yml) setup to build and deploy this to GitHub Pages too (using `build.sh`).
 
 #### Manual Process
 
 Before you can rebuild, you need to download FPC and Pas2js into their respective folders. They are setup as git submodules, which simplified this. There are 3 ways to do this:
 
-* To clone this repo and and the submodules at the same time use `git clone --recursive` 
+* To clone [this repo](https://github.com/jimmckeeth/webcompiler) and and the submodules at the same time use
+     ```cmd
+     git clone --recursive https://github.com/jimmckeeth/webcompiler.git
+     ```
+  * or whatever fork you are cloing from
 * If you've already cloned this repo then to download just the submodules run `git submodule update --init`
 * If you want to update the submodules to the latest version `git submodule update --remote`
 
@@ -89,7 +96,7 @@ bin/pas2js.exe -Tbrowser -Jc -O2 "-Fucompiler/utils/pas2js" "-Fucompiler/package
 
 ## Directory Structure
 
-This is a rough estimate of what your directory structure should look like. There is a readme in the [bin folder](/bin), and another in the [src folder](/src/readme.md) with more information on building and deployment.
+This is a rough estimate of what your directory structure _should_ look like. There is a readme in [the 📁**bin** folder](/bin), and another in [the 📁**src** folder](/src/readme.md) with more information on building and deployment.
 
 ```
 📁webcompiler/ ◄━	 YOU ARE HERE

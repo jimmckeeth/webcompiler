@@ -71,7 +71,7 @@ Before you can rebuild, you need to download FPC and Pas2js into their respectiv
 * If you've already cloned this repo then to download just the submodules run `git submodule update --init`
 * If you want to update the submodules to the latest version `git submodule update --remote`
 
-You need to download the Pas2js compiler for your platform into the bin folder.
+You need to download the Pas2js compiler for your platform into the [bin folder](/bin).
 
 You also need to 
 
@@ -89,7 +89,7 @@ bin/pas2js.exe -Tbrowser -Jc -O2 "-Fucompiler/utils/pas2js" "-Fucompiler/package
 
 ## Directory Structure
 
-* fpc
+This is a rough estimate of what your directory structure should look like. There is a readme in the [bin folder](/bin), and another in the [src folder](/src/readme.md) with more information on building and deployment.
 
 ```
 📁webcompiler/ ◄━	 YOU ARE HERE
